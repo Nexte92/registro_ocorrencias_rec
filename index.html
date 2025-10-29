@@ -43,11 +43,24 @@
         .form-group { display: flex; flex-direction: column; }
         label { margin-bottom: 5px; font-weight: 600; color: #555; }
 
-        input[type="text"], input[type="date"], select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        input[type="text"], input[type="date"], select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
         
         .botoes { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-        button { padding: 10px 20px; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.3s, transform 0.1s; }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
         button:active { transform: scale(0.98); }
 
         #btn-salvar { background-color: var(--cor-sucesso); color: white; }
@@ -73,7 +86,7 @@
 
         .etiqueta-divergencias {
             width: 10.2cm;
-            height: 7.5cm;
+            height: 7.2cm;
             background-color: #ffda47;
             border: 1px solid #ccc;
             padding: 15px;
@@ -107,20 +120,56 @@
         <h1>Controle de Registros</h1>
         <div class="form-container">
             <div class="form-grid">
-                <div class="form-group"> <label for="fornecedor">Fornecedor:</label> <input type="text" id="fornecedor" placeholder="Nome do fornecedor"> </div>
-                <div class="form-group"> <label for="status">Status:</label> <select id="status"> <option value="Avarias">Avarias</option> <option value="Sobras">Sobras</option> <option value="Erro de Explosão">Erro de Explosão</option> <option value="Pre-vencidos">Pre-vencidos</option> </select> </div>
-                <div class="form-group"> <label for="data">Data:</label> <input type="date" id="data"> </div>
-                <div class="form-group"> <label for="dtNf">Dt/NF:</label> <input type="text" id="dtNf" placeholder="Data ou número da NF"> </div>
-                <div class="form-group"> <label for="matricula">Matrícula:</label> <input type="text" id="matricula" placeholder="Matrícula do responsável"> </div>
+                <div class="form-group">
+                    <label for="fornecedor">Fornecedor:</label>
+                    <input type="text" id="fornecedor" placeholder="Nome do fornecedor">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status">
+                        <option value="Avarias">Avarias</option>
+                        <option value="Sobras">Sobras</option>
+                        <option value="Erro de Explosão">Erro de Explosão</option>
+                        <option value="Pre-vencidos">Pre-vencidos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data">Data:</label>
+                    <input type="date" id="data">
+                </div>
+                <div class="form-group">
+                    <label for="dtNf">Dt/NF:</label>
+                    <input type="text" id="dtNf" placeholder="Data ou número da NF">
+                </div>
+                <div class="form-group">
+                    <label for="matricula">Matrícula:</label>
+                    <input type="text" id="matricula" placeholder="Matrícula do responsável">
+                </div>
             </div>
-            <div class="botoes"> <button id="btn-salvar">Salvar Registro</button> </div>
+            <div class="botoes">
+                <button id="btn-salvar">Salvar Registro</button>
+            </div>
         </div>
+
         <div class="registros-salvos">
             <h2>Registros Salvos</h2>
-            <div class="info-ajuda"> <p><strong>💡 Dica:</strong> Clique em uma linha da tabela para carregar suas informações na etiqueta abaixo!</p> </div>
-            <div class="botoes-tabela"> <button id="btn-imprimir-tabela" class="btn-imprimir">Imprimir Tabela</button> </div>
+            <div class="info-ajuda">
+                <p><strong>💡 Dica:</strong> Clique em uma linha da tabela para carregar suas informações na etiqueta abaixo!</p>
+            </div>
+            <div class="botoes-tabela">
+                <button id="btn-imprimir-tabela" class="btn-imprimir">Imprimir Tabela</button>
+            </div>
             <table>
-                <thead> <tr> <th>Fornecedor</th> <th>Status</th> <th>Data</th> <th>Dt/NF</th> <th>Matrícula</th> <th class="actions">Ações</th> </tr> </thead>
+                <thead>
+                    <tr>
+                        <th>Fornecedor</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Dt/NF</th>
+                        <th>Matrícula</th>
+                        <th class="actions">Ações</th>
+                    </tr>
+                </thead>
                 <tbody id="tabela-corpo"></tbody>
             </table>
         </div>
@@ -143,7 +192,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- SELETORES E VARIÁVEIS ---
             const formInputs = {
                 fornecedor: document.getElementById('fornecedor'),
                 status: document.getElementById('status'),
@@ -151,6 +199,7 @@
                 dtNf: document.getElementById('dtNf'),
                 matricula: document.getElementById('matricula')
             };
+
             const etiquetaFields = {
                 fornecedor: document.getElementById('etiq-fornecedor'),
                 status: document.getElementById('etiq-status'),
@@ -158,6 +207,7 @@
                 dtnf: document.getElementById('etiq-dtnf'),
                 matricula: document.getElementById('etiq-matricula')
             };
+
             const btnSalvar = document.getElementById('btn-salvar');
             const btnImprimirTabela = document.getElementById('btn-imprimir-tabela');
             const btnImprimirEtiqueta = document.getElementById('btn-imprimir-etiqueta');
@@ -165,11 +215,9 @@
             const STORAGE_KEY = 'registrosDivergencia';
             let registros = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-            // --- FUNÇÕES ---
             const salvarNoStorage = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
-            
             const formatarData = (dataStr) => !dataStr || !dataStr.includes('-') ? dataStr : dataStr.split('-').reverse().join('/');
-            
+
             const atualizarEtiqueta = (dados) => {
                 etiquetaFields.fornecedor.textContent = dados.fornecedor || '';
                 etiquetaFields.status.textContent = dados.status || '';
@@ -177,13 +225,22 @@
                 etiquetaFields.dtnf.textContent = dados.dtNf || '';
                 etiquetaFields.matricula.textContent = dados.matricula || '';
             };
-            
+
             const renderizarTabela = () => {
-                tabelaCorpo.innerHTML = registros.length === 0 ? '<tr><td colspan="6" style="text-align:center;">Nenhum registro salvo.</td></tr>' : '';
+                tabelaCorpo.innerHTML = registros.length === 0
+                    ? '<tr><td colspan="6" style="text-align:center;">Nenhum registro salvo.</td></tr>'
+                    : '';
                 registros.forEach((registro, index) => {
                     const linha = tabelaCorpo.insertRow();
                     linha.dataset.index = index;
-                    linha.innerHTML = `<td>${registro.fornecedor}</td><td>${registro.status}</td><td>${formatarData(registro.data)}</td><td>${registro.dtNf}</td><td>${registro.matricula}</td><td class="actions"><button class="btn-delete" title="Deletar registro">🗑️</button></td>`;
+                    linha.innerHTML = `
+                        <td>${registro.fornecedor}</td>
+                        <td>${registro.status}</td>
+                        <td>${formatarData(registro.data)}</td>
+                        <td>${registro.dtNf}</td>
+                        <td>${registro.matricula}</td>
+                        <td class="actions"><button class="btn-delete" title="Deletar registro">🗑️</button></td>
+                    `;
                 });
             };
 
@@ -194,7 +251,7 @@
                 atualizarEtiquetaComDadosDoForm();
                 formInputs.fornecedor.focus();
             };
-            
+
             const atualizarEtiquetaComDadosDoForm = () => {
                 const dadosDoForm = {
                     fornecedor: formInputs.fornecedor.value,
@@ -206,7 +263,6 @@
                 atualizarEtiqueta(dadosDoForm);
             };
 
-            // --- EVENT LISTENERS ---
             btnSalvar.addEventListener('click', () => {
                 if (formInputs.fornecedor.value.trim() === '') {
                     alert('Por favor, preencha o campo Fornecedor.');
@@ -227,8 +283,9 @@
             tabelaCorpo.addEventListener('click', (e) => {
                 const linha = e.target.closest('tr');
                 if (!linha || !linha.dataset.index) return;
-                const index = parseInt(linha.dataset.index),
-                    registro = registros[index];
+                const index = parseInt(linha.dataset.index);
+                const registro = registros[index];
+
                 if (e.target.classList.contains('btn-delete')) {
                     if (confirm(`Tem certeza que deseja deletar o registro do fornecedor "${registro.fornecedor}"?`)) {
                         registros.splice(index, 1);
@@ -243,74 +300,109 @@
                 }
             });
 
-            // --- LÓGICA DE IMPRESSÃO DA ETIQUETA (MODIFICADA E SIMPLIFICADA) ---
+            // ✅ IMPRESSÃO APENAS DA ETIQUETA (10,2cm x 7,2cm)
             btnImprimirEtiqueta.addEventListener('click', () => {
-                // 1. Guarda uma referência do conteúdo original da página
-                const conteudoOriginal = document.body.innerHTML;
-                
-                // 2. Obtém o HTML apenas da área da etiqueta que queremos imprimir
-                const conteudoParaImprimir = document.getElementById('etiqueta-print-area').outerHTML; // Usamos outerHTML para incluir a div principal
-                
-                // 3. Adiciona um estilo básico para centralizar e ajustar a etiqueta na página de impressão
-                const estiloImpressao = `
-                    <style>
-                        @media print {
-                            body { margin: 0; padding: 0; }
-                            .etiqueta-divergencias {
-                                margin: auto; /* Centraliza a etiqueta */
-                                border: none !important;
-                                box-shadow: none !important;
-                            }
-                        }
-                    </style>
-                `;
+                const etiqueta = document.getElementById('etiqueta-print-area').outerHTML;
+                const janela = window.open('', '', 'width=800,height=600');
 
-                // 4. Substitui todo o conteúdo do corpo da página pelo estilo e conteúdo da etiqueta
-                document.body.innerHTML = estiloImpressao + conteudoParaImprimir;
-                
-                // 5. Chama a função de impressão do navegador
-                window.print();
-                
-                // 6. Restaura o conteúdo original da página
-                document.body.innerHTML = conteudoOriginal;
-                
-                // 7. Recarrega os eventos e o estado da aplicação, pois o DOM foi reescrito
-                location.reload(); 
+                janela.document.write(`
+                    <html>
+                        <head>
+                            <title>Impressão de Etiqueta</title>
+                            <style>
+                                @page {
+                                    size: 10.2cm 7.2cm;
+                                    margin: 0;
+                                }
+                                body {
+                                    margin: 0;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                    background: white;
+                                }
+                                .etiqueta-divergencias {
+                                    width: 10.2cm;
+                                    height: 7.2cm;
+                                    box-sizing: border-box;
+                                    background: #ffda47;
+                                    border: 1px solid #000;
+                                    padding: 15px;
+                                    font-family: sans-serif;
+                                    font-weight: bold;
+                                    color: #333;
+                                    line-height: 1.3;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: space-around;
+                                    position: relative;
+                                }
+                                .etiqueta-divergencias .titulo {
+                                    text-align: center;
+                                    width: 100%;
+                                    font-size: 1.4em;
+                                    text-transform: uppercase;
+                                    margin-bottom: 5px;
+                                }
+                                .etiqueta-divergencias .campo-etiqueta {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: baseline;
+                                    width: 100%;
+                                    font-size: 1.1em;
+                                    margin-bottom: 8px;
+                                }
+                                .etiqueta-divergencias .campo-etiqueta .linha-preenchimento {
+                                    flex-grow: 1;
+                                    border-bottom: 1px dotted black;
+                                    margin-left: 8px;
+                                    min-height: 24px;
+                                    display: flex;
+                                    align-items: center;
+                                    padding-left: 8px;
+                                    font-size: 1.05em;
+                                }
+                                .etiqueta-divergencias .canto-superior-direito {
+                                    position: absolute;
+                                    top: -1px;
+                                    right: -1px;
+                                    width: 25px;
+                                    height: 25px;
+                                    background-color: #e0e0e0;
+                                    transform: rotate(45deg);
+                                    transform-origin: top right;
+                                    border-bottom-left-radius: 50%;
+                                    box-shadow: -2px 2px 5px rgba(0,0,0,0.2);
+                                    z-index: 1;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${etiqueta}
+                        </body>
+                    </html>
+                `);
+
+                janela.document.close();
+                janela.focus();
+                janela.print();
+                janela.close();
             });
 
-
-            // --- LÓGICA DE IMPRESSÃO DA TABELA ---
             btnImprimirTabela.addEventListener('click', () => {
-                const estiloTabela = document.createElement('style');
-                estiloTabela.id = 'estilo-impressao-tabela';
-                estiloTabela.innerHTML = `
-                    @media print {
-                        body > *:not(.container) { display: none; }
-                        .container { box-shadow: none; border: none; }
-                        .form-container, .etiqueta-container, .botoes, .botoes-tabela, .info-ajuda, .actions { display: none; }
-                    }
-                `;
-                document.head.appendChild(estiloTabela);
+                document.querySelector('.container').classList.add('printable');
                 window.print();
-                
-                // Adicionamos um pequeno atraso para garantir que a remoção ocorra após a impressão
-                setTimeout(() => {
-                    const estilo = document.getElementById('estilo-impressao-tabela');
-                    if (estilo) {
-                        estilo.remove();
-                    }
-                }, 100);
             });
-            
-            Object.values(formInputs).forEach(input => input.addEventListener('input', atualizarEtiquetaComDadosDoForm));
 
-            // --- INICIALIZAÇÃO ---
-            const inicializar = () => {
-                renderizarTabela();
-                formInputs.data.valueAsDate = new Date();
-                atualizarEtiquetaComDadosDoForm();
-            };
-            inicializar();
+            Object.values(formInputs).forEach(input => {
+                input.addEventListener('input', atualizarEtiquetaComDadosDoForm);
+                input.addEventListener('change', atualizarEtiquetaComDadosDoForm);
+            });
+
+            formInputs.data.valueAsDate = new Date();
+            renderizarTabela();
+            atualizarEtiquetaComDadosDoForm();
         });
     </script>
 </body>
