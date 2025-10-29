@@ -144,8 +144,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- SELETORES E VARIÁVEIS ---
-            const formInputs = { fornecedor: document.getElementById('fornecedor'), status: document.getElementById('status'), data: document.getElementById('data'), dtNf: document.getElementById('dtNf'), matricula: document.getElementById('matricula') };
-            const etiquetaFields = { fornecedor: document.getElementById('etiq-fornecedor'), status: document.getElementById('etiq-status'), data: document.getElementById('etiq-data'), dtnf: document.getElementById('etiq-dtnf'), matricula: document.getElementById('etiq-matricula') };
+            const formInputs = {
+                fornecedor: document.getElementById('fornecedor'),
+                status: document.getElementById('status'),
+                data: document.getElementById('data'),
+                dtNf: document.getElementById('dtNf'),
+                matricula: document.getElementById('matricula')
+            };
+            const etiquetaFields = {
+                fornecedor: document.getElementById('etiq-fornecedor'),
+                status: document.getElementById('etiq-status'),
+                data: document.getElementById('etiq-data'),
+                dtnf: document.getElementById('etiq-dtnf'),
+                matricula: document.getElementById('etiq-matricula')
+            };
             const btnSalvar = document.getElementById('btn-salvar');
             const btnImprimirTabela = document.getElementById('btn-imprimir-tabela');
             const btnImprimirEtiqueta = document.getElementById('btn-imprimir-etiqueta');
@@ -155,7 +167,9 @@
 
             // --- FUNÇÕES ---
             const salvarNoStorage = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+            
             const formatarData = (dataStr) => !dataStr || !dataStr.includes('-') ? dataStr : dataStr.split('-').reverse().join('/');
+            
             const atualizarEtiqueta = (dados) => {
                 etiquetaFields.fornecedor.textContent = dados.fornecedor || '';
                 etiquetaFields.status.textContent = dados.status || '';
@@ -163,6 +177,7 @@
                 etiquetaFields.dtnf.textContent = dados.dtNf || '';
                 etiquetaFields.matricula.textContent = dados.matricula || '';
             };
+            
             const renderizarTabela = () => {
                 tabelaCorpo.innerHTML = registros.length === 0 ? '<tr><td colspan="6" style="text-align:center;">Nenhum registro salvo.</td></tr>' : '';
                 registros.forEach((registro, index) => {
@@ -171,6 +186,7 @@
                     linha.innerHTML = `<td>${registro.fornecedor}</td><td>${registro.status}</td><td>${formatarData(registro.data)}</td><td>${registro.dtNf}</td><td>${registro.matricula}</td><td class="actions"><button class="btn-delete" title="Deletar registro">🗑️</button></td>`;
                 });
             };
+
             const limparFormulario = () => {
                 Object.values(formInputs).forEach(input => input.value = '');
                 formInputs.status.value = 'Avarias';
@@ -178,23 +194,41 @@
                 atualizarEtiquetaComDadosDoForm();
                 formInputs.fornecedor.focus();
             };
+            
             const atualizarEtiquetaComDadosDoForm = () => {
-                const dadosDoForm = { fornecedor: formInputs.fornecedor.value, status: formInputs.status.value, data: formInputs.data.value, dtNf: formInputs.dtNf.value, matricula: formInputs.matricula.value };
+                const dadosDoForm = {
+                    fornecedor: formInputs.fornecedor.value,
+                    status: formInputs.status.value,
+                    data: formInputs.data.value,
+                    dtNf: formInputs.dtNf.value,
+                    matricula: formInputs.matricula.value
+                };
                 atualizarEtiqueta(dadosDoForm);
             };
 
             // --- EVENT LISTENERS ---
             btnSalvar.addEventListener('click', () => {
-                if (formInputs.fornecedor.value.trim() === '') { alert('Por favor, preencha o campo Fornecedor.'); return; }
-                registros.push({ fornecedor: formInputs.fornecedor.value, status: formInputs.status.value, data: formInputs.data.value, dtNf: formInputs.dtNf.value, matricula: formInputs.matricula.value });
+                if (formInputs.fornecedor.value.trim() === '') {
+                    alert('Por favor, preencha o campo Fornecedor.');
+                    return;
+                }
+                registros.push({
+                    fornecedor: formInputs.fornecedor.value,
+                    status: formInputs.status.value,
+                    data: formInputs.data.value,
+                    dtNf: formInputs.dtNf.value,
+                    matricula: formInputs.matricula.value
+                });
                 salvarNoStorage();
                 renderizarTabela();
                 limparFormulario();
             });
+
             tabelaCorpo.addEventListener('click', (e) => {
                 const linha = e.target.closest('tr');
                 if (!linha || !linha.dataset.index) return;
-                const index = parseInt(linha.dataset.index), registro = registros[index];
+                const index = parseInt(linha.dataset.index),
+                    registro = registros[index];
                 if (e.target.classList.contains('btn-delete')) {
                     if (confirm(`Tem certeza que deseja deletar o registro do fornecedor "${registro.fornecedor}"?`)) {
                         registros.splice(index, 1);
@@ -209,53 +243,44 @@
                 }
             });
 
-            // LÓGICA DE IMPRESSÃO DA ETIQUETA (CORRIGIDA)
+            // --- LÓGICA DE IMPRESSÃO DA ETIQUETA (MODIFICADA E SIMPLIFICADA) ---
             btnImprimirEtiqueta.addEventListener('click', () => {
-                const estiloImpressao = document.createElement('style');
-                estiloImpressao.id = 'estilo-impressao-etiqueta';
-                estiloImpressao.innerHTML = `
-                    @page {
-                        size: 10.2cm 7.2cm; /* Define o tamanho do papel */
-                        margin: 0;
-                    }
-                    @media print {
-                        /* 1. Esconde todos os elementos da página por padrão */
-                        body * {
-                            visibility: hidden;
+                // 1. Guarda uma referência do conteúdo original da página
+                const conteudoOriginal = document.body.innerHTML;
+                
+                // 2. Obtém o HTML apenas da área da etiqueta que queremos imprimir
+                const conteudoParaImprimir = document.getElementById('etiqueta-print-area').outerHTML; // Usamos outerHTML para incluir a div principal
+                
+                // 3. Adiciona um estilo básico para centralizar e ajustar a etiqueta na página de impressão
+                const estiloImpressao = `
+                    <style>
+                        @media print {
+                            body { margin: 0; padding: 0; }
+                            .etiqueta-divergencias {
+                                margin: auto; /* Centraliza a etiqueta */
+                                border: none !important;
+                                box-shadow: none !important;
+                            }
                         }
-                        /* 2. Exibe SOMENTE a área da etiqueta e seus elementos internos */
-                        #etiqueta-print-area, #etiqueta-print-area * {
-                            visibility: visible;
-                        }
-                        /* 3. Posiciona a etiqueta no topo da página de impressão */
-                        #etiqueta-print-area {
-                            position: absolute;
-                            left: 0;
-                            top: 0;
-                            width: 10,2cm;
-                            height: 7,2cm;
-                            box-shadow: none !important;
-                            border: none !important;
-                        }
-                    }
+                    </style>
                 `;
-                document.head.appendChild(estiloImpressao);
+
+                // 4. Substitui todo o conteúdo do corpo da página pelo estilo e conteúdo da etiqueta
+                document.body.innerHTML = estiloImpressao + conteudoParaImprimir;
+                
+                // 5. Chama a função de impressão do navegador
                 window.print();
+                
+                // 6. Restaura o conteúdo original da página
+                document.body.innerHTML = conteudoOriginal;
+                
+                // 7. Recarrega os eventos e o estado da aplicação, pois o DOM foi reescrito
+                location.reload(); 
             });
 
-            // LIMPEZA PÓS-IMPRESSÃO
-            window.addEventListener('afterprint', () => {
-                const estiloParaRemover = document.getElementById('estilo-impressao-etiqueta');
-                if (estiloParaRemover) {
-                    estiloParaRemover.remove(); // Remove os estilos para não afetar o site
-                }
-                const printableElement = document.querySelector('.printable');
-                if(printableElement) printableElement.classList.remove('printable');
-            });
 
-            // LÓGICA DE IMPRESSÃO DA TABELA
+            // --- LÓGICA DE IMPRESSÃO DA TABELA ---
             btnImprimirTabela.addEventListener('click', () => {
-                // Adicionado um estilo simples para a impressão da tabela
                 const estiloTabela = document.createElement('style');
                 estiloTabela.id = 'estilo-impressao-tabela';
                 estiloTabela.innerHTML = `
@@ -267,7 +292,14 @@
                 `;
                 document.head.appendChild(estiloTabela);
                 window.print();
-                document.getElementById('estilo-impressao-tabela').remove(); // Limpa após imprimir
+                
+                // Adicionamos um pequeno atraso para garantir que a remoção ocorra após a impressão
+                setTimeout(() => {
+                    const estilo = document.getElementById('estilo-impressao-tabela');
+                    if (estilo) {
+                        estilo.remove();
+                    }
+                }, 100);
             });
             
             Object.values(formInputs).forEach(input => input.addEventListener('input', atualizarEtiquetaComDadosDoForm));
